@@ -9,7 +9,12 @@
       "name": "Submit Payment",
       "request": {
         "method": "POST",
-        "header": [],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"orderId\": \"order123\",\n    \"orderPrice\": 100.00\n}",
@@ -25,7 +30,7 @@
             "{{host}}"
           ],
           "path": [
-            ""
+            "payments"
           ]
         }
       },
@@ -35,7 +40,12 @@
       "name": "Payment Webhook",
       "request": {
         "method": "POST",
-        "header": [],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"paymentId\": \"payment123\",\n    \"success\": true\n}",
@@ -51,14 +61,15 @@
             "{{host}}"
           ],
           "path": [
-            "payments"
+            "payments",
+            "webhook"
           ]
         }
       },
       "response": []
     },
     {
-      "name": "Search Order Payment Status",
+      "name": "Search Payment by ID",
       "request": {
         "method": "GET",
         "header": [],
@@ -76,6 +87,35 @@
               "id": "paymentId",
               "key": "paymentId",
               "value": "payment123"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Search Payments",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{host}}/payments?orderId={{orderId}}&status={{status}}",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "payments"
+          ],
+          "query": [
+            {
+              "key": "orderId",
+              "value": "order123",
+              "description": "Filter payments by order ID"
+            },
+            {
+              "key": "status",
+              "value": "APPROVED",
+              "description": "Filter payments by status"
             }
           ]
         }

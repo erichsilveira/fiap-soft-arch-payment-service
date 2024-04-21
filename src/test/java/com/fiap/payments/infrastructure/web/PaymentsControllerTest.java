@@ -5,6 +5,7 @@ import com.fiap.payments.application.usecases.SubmitPaymentUseCase;
 import com.fiap.payments.application.usecases.UpdatePaymentUseCase;
 import com.fiap.payments.domain.entity.Payment;
 import com.fiap.payments.exception.ResourceNotFoundException;
+import com.fiap.payments.interfaces.dto.SearchPaymentCommand;
 import com.fiap.payments.mocks.PaymentMock;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +19,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -71,7 +75,7 @@ class PaymentsControllerTest {
     public void testSearchOrderPaymentStatus() throws Exception {
         Payment payment = PaymentMock.generatePayment("payment123", 10000, "order123");
 
-        given(searchPaymentUseCase.searchPayment("payment123")).willReturn(payment);
+        given(searchPaymentUseCase.searchPaymentById("payment123")).willReturn(payment);
 
         mockMvc.perform(get("/payments/payment123"))
                 .andExpect(status().isOk())
@@ -80,10 +84,29 @@ class PaymentsControllerTest {
 
     @Test
     public void testSearchOrderPaymentStatusNotFound() throws Exception {
-        given(searchPaymentUseCase.searchPayment("not_found")).willThrow(
+        given(searchPaymentUseCase.searchPaymentById("not_found")).willThrow(
                 ResourceNotFoundException.class);
 
         mockMvc.perform(get("/payments/not_found"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testSearchPayments() throws Exception {
+        // Given
+        Payment paymentOne = PaymentMock.generatePayment("payment123", 10000, "order123");
+        Payment paymentTwo = PaymentMock.generatePayment("payment124", 20000, "order124");
+        List<Payment> payments = Arrays.asList(paymentOne, paymentTwo);
+
+        given(searchPaymentUseCase.searchPayments(any(SearchPaymentCommand.class))).willReturn(payments);
+
+        // When & Then
+        mockMvc.perform(get("/payments")
+                        .param("orderId", "order123")
+                        .param("status", "CREATED"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id", is("payment123")))
+                .andExpect(jsonPath("$[1].id", is("payment124")));
     }
 }

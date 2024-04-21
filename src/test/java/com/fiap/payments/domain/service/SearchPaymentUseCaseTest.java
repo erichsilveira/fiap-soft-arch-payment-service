@@ -1,18 +1,10 @@
 package com.fiap.payments.domain.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.fiap.payments.domain.entity.Payment;
 import com.fiap.payments.domain.repository.PaymentRepository;
 import com.fiap.payments.exception.ResourceNotFoundException;
 import com.fiap.payments.infrastructure.model.PaymentModel;
 import com.fiap.payments.mocks.PaymentMock;
-import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,14 +12,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class SearchPaymentUseCaseTest {
 
-    @Mock
-    private PaymentRepository mockRepository;
-
     @InjectMocks
     private static SearchPaymentUseCaseImpl useCase;
+    @Mock
+    private PaymentRepository mockRepository;
 
     @AfterEach
     void resetMocks() {
@@ -42,7 +38,7 @@ class SearchPaymentUseCaseTest {
         PaymentModel mockPaymentModel = PaymentMock.generatePaymentModel(paymentId, price);
         when(mockRepository.getPayment(paymentId)).thenReturn(Optional.of(mockPaymentModel));
 
-        Payment result = useCase.searchPayment(paymentId);
+        Payment result = useCase.searchPaymentById(paymentId);
 
         assertNotNull(result);
         assertEquals(paymentId, result.getId());
@@ -57,7 +53,7 @@ class SearchPaymentUseCaseTest {
 
         assertThrows(ResourceNotFoundException.class, () -> {
             when(mockRepository.getPayment(paymentId)).thenReturn(Optional.empty());
-            useCase.searchPayment(paymentId);
+            useCase.searchPaymentById(paymentId);
         });
     }
 }

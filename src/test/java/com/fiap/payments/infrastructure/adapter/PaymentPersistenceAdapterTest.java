@@ -1,25 +1,24 @@
 package com.fiap.payments.infrastructure.adapter;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
+import com.fiap.payments.domain.entity.Payment;
 import com.fiap.payments.domain.entity.PaymentStatus;
 import com.fiap.payments.infrastructure.model.PaymentModel;
 import com.fiap.payments.infrastructure.persistence.PaymentJpaRepository;
-import java.math.BigDecimal;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
+
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentPersistenceAdapterTest {
@@ -73,7 +72,7 @@ class PaymentPersistenceAdapterTest {
         when(paymentJpaRepository.save(foundPaymentModel)).thenReturn(foundPaymentModel);
 
         assertDoesNotThrow(
-            () -> paymentPersistenceAdapter.updatePayment(paymentId, PaymentStatus.APPROVED));
+                () -> paymentPersistenceAdapter.updatePayment(paymentId, PaymentStatus.APPROVED));
         assertEquals(PaymentStatus.APPROVED, foundPaymentModel.getStatus());
         verify(paymentJpaRepository).save(foundPaymentModel);
     }
@@ -84,6 +83,44 @@ class PaymentPersistenceAdapterTest {
         when(paymentJpaRepository.findById(paymentId)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class,
-            () -> paymentPersistenceAdapter.updatePayment(paymentId, PaymentStatus.APPROVED));
+                () -> paymentPersistenceAdapter.updatePayment(paymentId, PaymentStatus.APPROVED));
+    }
+
+    @Test
+    void testSearchPayments_WithFilters() {
+        // Setup
+        String orderId = "order123";
+        PaymentStatus status = PaymentStatus.CREATED;
+        PaymentModel paymentModel = PaymentModel.builder()
+                .orderId(orderId)
+                .status(status)
+                .orderPrice(new BigDecimal("99.99"))
+                .build();
+        List<PaymentModel> expectedList = Collections.singletonList(paymentModel);
+
+        when(paymentJpaRepository.findAll(any(Example.class), any(Sort.class))).thenReturn(expectedList);
+
+        // Execution
+        List<Payment> result = paymentPersistenceAdapter.searchPayments(orderId, status);
+
+        // Assertions
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(orderId, result.get(0).getOrderId());
+        assertEquals(status, result.get(0).getStatus());
+    }
+
+    @Test
+    void testSearchPayments_NoFilters() {
+        // Setup
+        when(paymentJpaRepository.findAll(any(Example.class), any(Sort.class))).thenReturn(Collections.emptyList());
+
+        // Execution
+        List<Payment> result = paymentPersistenceAdapter.searchPayments(null, null);
+
+        // Assertions
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 }
