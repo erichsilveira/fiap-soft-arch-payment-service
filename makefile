@@ -9,4 +9,4 @@ k delete --all deployments --namespace=default
 
 
 aws eks --region us-east-1 update-kubeconfig --name apps_cluster
-k port-forward food-service-backend-svc 30003:30003
+k port-forward payments-service-backend-svc 30003:30003

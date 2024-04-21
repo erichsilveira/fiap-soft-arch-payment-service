@@ -71,7 +71,7 @@ class PaymentsControllerTest {
     public void testSearchOrderPaymentStatus() throws Exception {
         Payment payment = PaymentMock.generatePayment("payment123", 10000, "order123");
 
-        given(searchPaymentUseCase.searchPayment("payment123")).willReturn(payment);
+        given(searchPaymentUseCase.searchPaymentById("payment123")).willReturn(payment);
 
         mockMvc.perform(get("/payments/payment123"))
                 .andExpect(status().isOk())
@@ -80,7 +80,7 @@ class PaymentsControllerTest {
 
     @Test
     public void testSearchOrderPaymentStatusNotFound() throws Exception {
-        given(searchPaymentUseCase.searchPayment("not_found")).willThrow(
+        given(searchPaymentUseCase.searchPaymentById("not_found")).willThrow(
                 ResourceNotFoundException.class);
 
         mockMvc.perform(get("/payments/not_found"))
