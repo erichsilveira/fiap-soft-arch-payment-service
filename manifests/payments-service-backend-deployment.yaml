@@ -18,7 +18,7 @@ spec:
         - env:
             - name: postgre.address
               value: postgres
-          image: erich852/payments-service
+          image: erich852/payment
           name: payments-service-project
           imagePullPolicy: Always
           ports:

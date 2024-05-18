@@ -9,6 +9,10 @@ Pos Tech FIAP - Payments Project
 
 ## Documentation
 
+### Test Coverage Report
+
+![image](./docs/testReport.png)
+
 ### DDD
 - https://miro.com/app/board/uXjVNf1J6J8=
 
