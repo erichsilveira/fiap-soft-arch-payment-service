@@ -1,5 +1,26 @@
 version: '1'
 services:
+  localstack:
+    container_name: customer-user-api-localstack
+    image: localstack/localstack:latest
+    environment:
+      - EXTRA_CORS_ALLOWED_ORIGINS=https://app.localstack.cloud.
+      - PERSISTENCE=1
+      - DISABLE_CORS_CHECKS=1
+      - DEBUG=1
+      - AWS_DEFAULT_REGION=us-east-1
+      - LOCALSTACK_HOSTNAME=localhost.localstack.cloud
+      - LS_LOG=trace
+      - LOCALSTACK_AUTH_TOKEN="ls-REpA3567-0429-cIKA-qaFu-WUSoDUgA08e4"
+    ports:
+      - "127.0.0.1:4510-4559:4510-4559"  # external service port range
+      - "127.0.0.1:4566:4566"            # LocalStack Edge Proxy
+    volumes:
+      - './containers/customer-user-api/local/setup-localstack.sh:/etc/localstack/init/ready.d/setup-localstack.sh'
+    networks:
+      default:
+        aliases:
+          - localhost.localstack.cloud
   postgres:
     container_name: payments-postgres
     image: postgres:13.8
