@@ -9,6 +9,15 @@ Pos Tech FIAP - Payments Project
 
 ## Documentation
 
+### Saga Pattern
+![image](./docs/sagaDiagram.png)
+Justificativa: Escolhemos o padrão de SAGA Coreografada. Levando em consideração o problema a ser resolvido e a complexidade da nossa arquitetura, a coreografia pareceu a opção que se encaixa melhor. No nosso caso são apenas 3 microservices e 3 filas. Achamos que o padrão de orquestrada se encaixaria melhor em um cenário mais complexo.
+Ao tornarmos o processo de pagamento (com o provider) assíncrono, damos uma sensação de maior agilidade para o cliente pois a API não fica travada esperando a aprovação do pagamento.
+Como estamos usando microservices escaláveis, múltiplas instâncias do Payment Service podem consumir eventos de pagamento, isso ajuda nos horários de pico ou lentidão do provider/vendor de pagamentos.
+O Order Service fica com a responsabilidade de encaminhar o pedido para produção caso o pagamento esteja aprovado, ou avisar o cliente em caso de não ser aprovado.
+Por fim o Production Service consome os eventos de pedidos para enviar para produção.
+
+
 ### Test Coverage Report
 
 ![image](./docs/testReport.png)
